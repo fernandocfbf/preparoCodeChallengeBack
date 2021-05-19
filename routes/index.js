@@ -33,12 +33,12 @@ router.post('/signUp', async function (req, res) {
       else {
         const db_data = require("../mongo/dbGeneralData")
         const Data = db_data.Mongoose.model('generalData', db_data.DataSchema, 'generalData')
-        new_data = new Data({ user: 'fernando' })
+        new_data = new Data({ user: info.user })
         new_data.save() //cria documento inicial no banco de dados gerais
 
         const db_location = require("../mongo/dbLocationData")
         const Location = db_location.Mongoose.model('locationData', db_location.LocationSchema, 'locationData')
-        new_location = new Location({ user: 'fernando' })
+        new_location = new Location({ user: info.user })
         new_location.save() //cria documento inciail no banco de localização
       }
     })
@@ -72,11 +72,12 @@ router.post('/signIn', async function (req, res) {
 
 router.post('/upDateDados', async function (req, res) {
   const db = require("../mongo/dbGeneralData") //conecta no banco
+  const user = localStorage.getItem('user')
   const dados = req.body
 
   const query = await db.Mongoose.model('generalData', db.DataSchema,
     'generalData').findOneAndUpdate(
-      { user: dados.user },
+      { user: user },
       {
         $set: {
           image: dados.image,
@@ -96,11 +97,12 @@ router.post('/upDateDados', async function (req, res) {
 
 router.post('/upDateLocation', async function (req, res) {
   const db = require("../mongo/dbLocationData")
+  const user = localStorage.getItem('user')
   const dados = req.body
 
   const query = await db.Mongoose.model('locationData', db.LocationSchema,
     'locationData').findOneAndUpdate(
-      { user: dados.user },
+      { user: user },
       {
         $set: {
           cep: dados.cep,
@@ -114,6 +116,19 @@ router.post('/upDateLocation', async function (req, res) {
       }
     ).lean()
 
+    console.log("query: ", query)
+
+  res.end()
+})
+
+router.get('/location', async function(req, res){
+  const db = require("../mongo/dbLocationData")
+  const user = localStorage.getItem('user')
+
+  const query = await db.Mongoose.model('locationData', db.LocationSchema,
+    'locationData').find({user: user}).lean()
+
+  res.json({'info':query[0]})
   res.end()
 })
 
