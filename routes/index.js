@@ -61,10 +61,10 @@ router.post('/signIn', async function (req, res) {
     }).lean()
 
   var auth = false //valida se o usuário está autenticado
-  if (query.length > 0){
+  if (query.length > 0) {
     auth = true
     localStorage.setItem('user', user) //salva o usuário que efetuou login
-  } 
+  }
 
   res.json({ 'auth': auth })
   res.end()
@@ -115,20 +115,28 @@ router.post('/upDateLocation', async function (req, res) {
         }
       }
     ).lean()
-
-    console.log("query: ", query)
-
   res.end()
 })
 
-router.get('/location', async function(req, res){
+router.get('/location', async function (req, res) {
   const db = require("../mongo/dbLocationData")
   const user = localStorage.getItem('user')
 
   const query = await db.Mongoose.model('locationData', db.LocationSchema,
-    'locationData').find({user: user}).lean()
+    'locationData').find({ user: user }).lean()
 
-  res.json({'info':query[0]})
+  res.json({ 'info': query[0] })
+  res.end()
+})
+
+router.get('/dados', async function (req, res) {
+  const db = require("../mongo/dbGeneralData")
+  const user = localStorage.getItem('user')
+
+  const query = await db.Mongoose.model('generalData', db.DataSchema,
+    'generalData').find({ user: user }).lean()
+
+  res.json({ 'info': query[0] })
   res.end()
 })
 
