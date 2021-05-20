@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var { encrypt, decrypt } = require('../src/services/crypto')
 var localStorage = require('localStorage')
+var geraToken = require('../src/services/geraToken')
+var validaToken = require('../src/services/validaToken')
 
 router.get('/', function (req, res) {
   res.json({ resp: "Teste" })
@@ -61,8 +63,13 @@ router.post('/signIn', async function (req, res) {
     }).lean()
 
   var auth = false //valida se o usuário está autenticado
+  
   if (query.length > 0) {
-    auth = true
+    auth = true //usuário autenticado
+    const secret = 'XZ4789#&@-*?;' //chave de segurança
+    const token = geraToken(secret, query[0]._id) //gera token de auth
+
+    localStorage.setItem('x-access-token', token) //salva token de auth
     localStorage.setItem('user', user) //salva o usuário que efetuou login
   }
 
@@ -137,6 +144,13 @@ router.get('/dados', async function (req, res) {
     'generalData').find({ user: user }).lean()
 
   res.json({ 'info': query[0] })
+  res.end()
+})
+
+router.get('/validaToken', validaToken)
+
+router.get('/logOut', function (req, res){
+  localStorage.clear() //limpa o localStorage
   res.end()
 })
 
