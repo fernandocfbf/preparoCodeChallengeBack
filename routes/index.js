@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var { encrypt, decrypt } = require('../src/services/crypto')
 var localStorage = require('localStorage')
 var geraToken = require('../src/services/geraToken')
-var validaToken = require('../src/services/validaToken')
+var validaToken = require('../src/services/validaToken');
 
 router.get('/', function (req, res) {
   res.json({ resp: "Teste" })
@@ -63,7 +62,7 @@ router.post('/signIn', async function (req, res) {
     }).lean()
 
   var auth = false //valida se o usuário está autenticado
-  
+
   if (query.length > 0) {
     auth = true //usuário autenticado
     const secret = 'XZ4789#&@-*?;' //chave de segurança
@@ -147,9 +146,26 @@ router.get('/dados', async function (req, res) {
   res.end()
 })
 
+router.post("/upDateEmail", async function (req, res) {
+  const db = require("../mongo/dbGeneralData")
+  const user = localStorage.getItem('user')
+  const dados = req.body
+
+  const query = await db.Mongoose.model('generalData', db.DataSchema,
+    'generalData').findOneAndUpdate(
+      { user: user },
+      {
+        $set: {
+          email: dados.email
+        }
+      }
+    ).lean()
+  res.end()
+})
+
 router.get('/validaToken', validaToken)
 
-router.get('/logOut', function (req, res){
+router.get('/logOut', function (req, res) {
   localStorage.clear() //limpa o localStorage
   res.end()
 })
